@@ -144,6 +144,10 @@ button.primary:active{ transform: translateY(0); }
 .pdef b{ color: var(--gold-bright); display:block; margin-bottom:3px; font-family:'Noto Serif KR',serif; font-size:12.5px;}
 @media (max-width: 560px){
   .pillar-defs{ grid-template-columns: repeat(2,1fr); }
+  .oh-defs{ grid-template-columns: repeat(2,1fr) !important; }
+}
+.oh-defs{
+  display:grid; grid-template-columns: repeat(5,1fr); gap:10px; margin: 0 0 16px;
 }
 .sipsin-tag{
   font-size:10px; color: var(--cinnabar); letter-spacing:.03em;
@@ -392,6 +396,10 @@ body.has-float-bar{ padding-bottom: 92px; }
       </div>
       <div class="field full">
         <label>태어난 시각 (12시진)</label>
+        <div class="btn-group" id="solarTimeGroup" style="margin-bottom:10px;">
+          <button type="button" class="pick-btn active" data-correction="0">표준시 그대로</button>
+          <button type="button" class="pick-btn" data-correction="1">진태양시 보정 (서울 기준 -32분)</button>
+        </div>
         <div class="hour-grid" id="sijinGrid"></div>
       </div>
       <div class="field full">
@@ -405,7 +413,13 @@ body.has-float-bar{ padding-bottom: 92px; }
         <label>양력 / 음력</label>
         <div class="btn-group" id="calGroup">
           <button type="button" class="pick-btn active" data-cal="solar">양력</button>
-          <button type="button" class="pick-btn" data-cal="lunar">음력 (근사 계산)</button>
+          <button type="button" class="pick-btn" data-cal="lunar">음력</button>
+        </div>
+        <div id="leapMonthField" class="hidden" style="margin-top:10px;">
+          <div class="btn-group" id="leapGroup">
+            <button type="button" class="pick-btn active" data-leap="0">평달이에요</button>
+            <button type="button" class="pick-btn" data-leap="1">윤달(閏)이에요</button>
+          </div>
         </div>
       </div>
       <div class="field full">
@@ -432,6 +446,13 @@ body.has-float-bar{ padding-bottom: 92px; }
     <div class="insight" id="iljuInsight" style="margin-top:16px;"></div>
 
     <h2 style="margin-top:28px;"><span class="num">03</span> 오행 균형</h2>
+    <div class="oh-defs">
+      <div class="pdef"><b class="ohcolor wood">목(木)</b> 성장·확장·추진력. 리더십과 유연함, 새로운 걸 뻗어나가는 힘을 상징해요.</div>
+      <div class="pdef"><b class="ohcolor fire">화(火)</b> 열정·표현력·활발함. 감정 표현이 풍부하고 사람을 끌어당기는 사교성을 상징해요.</div>
+      <div class="pdef"><b class="ohcolor earth">토(土)</b> 안정감·신뢰·포용력. 중심을 잡아주고 사람과 상황을 품는 힘을 상징해요.</div>
+      <div class="pdef"><b class="ohcolor metal">금(金)</b> 결단력·원칙·절제. 옳고 그름을 가르고 맺고 끊는 단호함을 상징해요.</div>
+      <div class="pdef"><b class="ohcolor water">수(水)</b> 지혜·유연함·직관. 상황에 맞게 흐르며 깊이 생각하는 힘을 상징해요.</div>
+    </div>
     <div class="ohbars" id="ohBox"></div>
     <div class="insight" id="ohInsight"></div>
 
@@ -585,6 +606,72 @@ body.has-float-bar{ padding-bottom: 92px; }
 
 <script>
 /* ============ 상수 정의 ============ */
+const LUNAR_TABLE_START = 1900;
+const LUNAR_TABLE = [
+5983208,1919600,3839248,5843877,1650192,2780304,5593892,1419696,2974800,6113986,1919312,7116742,
+2922064,2698448,5418821,701904,1420400,2991842,3581296,7751735,3820176,3446032,6895493,2710032,
+710832,5691140,1790384,3843152,8014562,3819856,3447750,1355312,2710736,4905797,2976208,1790096,
+3876611,1910128,5918695,2772592,1355024,2715494,2799088,1419440,7165732,3051952,2958416,6966978,
+2774352,5552039,1366576,2798800,5679973,1493456,3576944,7678723,3484048,2775016,2776656,1399056,
+2807686,2840048,1788080,3839780,3839408,1648720,3301027,2780464,5598151,1419824,2991312,6114149,
+2968048,2921584,5844708,2698608,5418984,702032,1422576,2992006,3581456,3557552,7640868,3446192,
+6894682,2710160,710960,1496998,1791536,3843280,8014693,3820016,3446928,2710243,2710864,5463016,
+879216,1791216,5973893,1910288,1723568,5549828,1355152,2714672,5597890,1419568,7165863,3052112,
+2958576,6967109,2774480,1356912,2799332,2807120,5680105,1526384,3577104,7678854,3484176,3298480,
+5552932,1399184,2806832,5688002,1788240,3839910,1873456,1649872,3301189,3321264,1402992,2841315,
+2991472,6114283,2968176,2921744,6893446,2698736,1223824,1404677,1488272,2992176,7162562,3557712,
+7641031,3446320,2708688,5420869,1235408,1496144,3582691,3876208,8013880,3820144,3447056,2710406,
+2711024,1398928,1791748,1922448,1909840,3821219,1723696,5549991,1355312,2714800,5598021,1419728,
+2987120,6105828,2959728,6969320,2774640,1357040,2799462,2807280,1484976,3053316,3577232,3483728,
+7493315,3299632,6634407,1399344,2806992,5688133,1788368,3839088,3746564,1715536,3301320,1224272,
+1404144,2841446,2992624,1919152,6068004,2954640,2763824,5402274,1223984,
+];
+
+// 음력(y,m,d,윤달여부) -> 양력(y,m,d) 정밀 변환
+// LUNAR_TABLE: 1900~2100년, 연도별로 [윤달번호(4bit) | 설날이2월인지(1bit) | 설날일(5bit) | 각 달 일수(29/30, 12~13bit)]로 인코딩
+function lunarToSolar(ly, lm, ld, isLeap){
+  if(ly < LUNAR_TABLE_START || ly > LUNAR_TABLE_START + LUNAR_TABLE.length - 1) return null;
+  const val = LUNAR_TABLE[ly - LUNAR_TABLE_START];
+  const leapMonth = val & 0xF;
+  const nyMonth = ((val >> 4) & 1) ? 2 : 1;
+  const nyDay = (val >> 5) & 0x1F;
+  const nMonths = leapMonth > 0 ? 13 : 12;
+  const lengths = [];
+  for(let i=0; i<nMonths; i++){
+    lengths.push(((val >> (10+i)) & 1) ? 30 : 29);
+  }
+
+  const nyDate = new Date(ly, nyMonth-1, nyDay, 12, 0, 0);
+  let offsetDays = 0;
+  let idx = 0;
+  for(let m=1; m<=12; m++){
+    const length = lengths[idx];
+    if(m === lm && !isLeap){
+      const result = new Date(nyDate);
+      result.setDate(result.getDate() + offsetDays + (ld-1));
+      return { year: result.getFullYear(), month: result.getMonth()+1, day: result.getDate() };
+    }
+    offsetDays += length;
+    idx++;
+    if(leapMonth === m){
+      const leapLength = lengths[idx];
+      if(isLeap && m === lm){
+        const result = new Date(nyDate);
+        result.setDate(result.getDate() + offsetDays + (ld-1));
+        return { year: result.getFullYear(), month: result.getMonth()+1, day: result.getDate() };
+      }
+      offsetDays += leapLength;
+      idx++;
+    }
+  }
+  return null;
+}
+
+function getLeapMonthOfYear(ly){
+  if(ly < LUNAR_TABLE_START || ly > LUNAR_TABLE_START + LUNAR_TABLE.length - 1) return 0;
+  return LUNAR_TABLE[ly - LUNAR_TABLE_START] & 0xF;
+}
+
 const STEMS = ["갑","을","병","정","무","기","경","신","임","계"];
 const STEM_HANJA = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
 const BRANCHES = ["자","축","인","묘","진","사","오","미","신","유","술","해"];
@@ -1176,23 +1263,25 @@ let maritalStatus = "unset";
 let genderSelected = null;
 
 // 12시진: 각 시진의 대표 시각(hour, minute) - 시두법 계산용
+// range/rangeCorrected: 표준시 vs 진태양시 보정(서울 기준 -32분, 즉 경계가 32분 늦춰짐) 시 화면에 보여줄 범위 텍스트
 const SIJIN_LIST = [
-  { branchIdx:0,  label:"자시", range:"23~01시", hour:0,  minute:30 },
-  { branchIdx:1,  label:"축시", range:"01~03시", hour:1,  minute:30 },
-  { branchIdx:2,  label:"인시", range:"03~05시", hour:3,  minute:30 },
-  { branchIdx:3,  label:"묘시", range:"05~07시", hour:5,  minute:30 },
-  { branchIdx:4,  label:"진시", range:"07~09시", hour:7,  minute:30 },
-  { branchIdx:5,  label:"사시", range:"09~11시", hour:9,  minute:30 },
-  { branchIdx:6,  label:"오시", range:"11~13시", hour:11, minute:30 },
-  { branchIdx:7,  label:"미시", range:"13~15시", hour:13, minute:30 },
-  { branchIdx:8,  label:"신시", range:"15~17시", hour:15, minute:30 },
-  { branchIdx:9,  label:"유시", range:"17~19시", hour:17, minute:30 },
-  { branchIdx:10, label:"술시", range:"19~21시", hour:19, minute:30 },
-  { branchIdx:11, label:"해시", range:"21~23시", hour:21, minute:30 }
+  { branchIdx:0,  label:"자시", range:"23~01시", rangeCorrected:"23:32~01:31", hour:0,  minute:30 },
+  { branchIdx:1,  label:"축시", range:"01~03시", rangeCorrected:"01:32~03:31", hour:1,  minute:30 },
+  { branchIdx:2,  label:"인시", range:"03~05시", rangeCorrected:"03:32~05:31", hour:3,  minute:30 },
+  { branchIdx:3,  label:"묘시", range:"05~07시", rangeCorrected:"05:32~07:31", hour:5,  minute:30 },
+  { branchIdx:4,  label:"진시", range:"07~09시", rangeCorrected:"07:32~09:31", hour:7,  minute:30 },
+  { branchIdx:5,  label:"사시", range:"09~11시", rangeCorrected:"09:32~11:31", hour:9,  minute:30 },
+  { branchIdx:6,  label:"오시", range:"11~13시", rangeCorrected:"11:32~13:31", hour:11, minute:30 },
+  { branchIdx:7,  label:"미시", range:"13~15시", rangeCorrected:"13:32~15:31", hour:13, minute:30 },
+  { branchIdx:8,  label:"신시", range:"15~17시", rangeCorrected:"15:32~17:31", hour:15, minute:30 },
+  { branchIdx:9,  label:"유시", range:"17~19시", rangeCorrected:"17:32~19:31", hour:17, minute:30 },
+  { branchIdx:10, label:"술시", range:"19~21시", rangeCorrected:"19:32~21:31", hour:19, minute:30 },
+  { branchIdx:11, label:"해시", range:"21~23시", rangeCorrected:"21:32~23:31", hour:21, minute:30 }
 ];
 
 // 시각 선택 상태: null = 모름, 아니면 SIJIN_LIST의 인덱스(0~11)
 let selectedSijin = null;
+let useTrueSolarTime = false;
 
 const sijinGrid = document.getElementById("sijinGrid");
 const unknownBtn = document.createElement("button");
@@ -1207,24 +1296,54 @@ unknownBtn.addEventListener("click", ()=>{
 });
 sijinGrid.appendChild(unknownBtn);
 
+const sijinBtns = [];
 SIJIN_LIST.forEach((s, i)=>{
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "pick-btn";
-  btn.innerHTML = `${s.label}<br><span style="font-size:10px; opacity:.7;">${s.range}</span>`;
   btn.addEventListener("click", ()=>{
     selectedSijin = i;
     sijinGrid.querySelectorAll(".pick-btn").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
   });
   sijinGrid.appendChild(btn);
+  sijinBtns.push(btn);
+});
+
+function renderSijinLabels(){
+  SIJIN_LIST.forEach((s, i)=>{
+    const rangeText = useTrueSolarTime ? s.rangeCorrected : s.range;
+    sijinBtns[i].innerHTML = `${s.label}<br><span style="font-size:10px; opacity:.7;">${rangeText}</span>`;
+  });
+}
+renderSijinLabels();
+
+// 진태양시 보정 토글
+document.getElementById("solarTimeGroup").querySelectorAll(".pick-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.getElementById("solarTimeGroup").querySelectorAll(".pick-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    useTrueSolarTime = btn.dataset.correction === "1";
+    renderSijinLabels();
+  });
 });
 
 // 양력/음력 버튼
+let calendarType = "solar";
+let isLeapMonth = false;
 document.getElementById("calGroup").querySelectorAll(".pick-btn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     document.getElementById("calGroup").querySelectorAll(".pick-btn").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
+    calendarType = btn.dataset.cal;
+    document.getElementById("leapMonthField").classList.toggle("hidden", calendarType !== "lunar");
+  });
+});
+document.getElementById("leapGroup").querySelectorAll(".pick-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.getElementById("leapGroup").querySelectorAll(".pick-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    isLeapMonth = btn.dataset.leap === "1";
   });
 });
 
@@ -1248,9 +1367,18 @@ document.getElementById("maritalGroup").querySelectorAll(".pick-btn").forEach(bt
 
 document.getElementById("birthForm").addEventListener("submit", function(e){
   e.preventDefault();
-  const y = parseInt(document.getElementById("byear").value,10);
-  const m = parseInt(document.getElementById("bmonth").value,10);
-  const d = parseInt(document.getElementById("bday").value,10);
+  let y = parseInt(document.getElementById("byear").value,10);
+  let m = parseInt(document.getElementById("bmonth").value,10);
+  let d = parseInt(document.getElementById("bday").value,10);
+
+  if(calendarType === "lunar"){
+    const converted = lunarToSolar(y, m, d, isLeapMonth);
+    if(!converted){
+      alert("입력하신 음력 날짜를 변환할 수 없어요. 연도는 1900~2100 사이여야 하고, 윤달 여부도 다시 확인해주세요.");
+      return;
+    }
+    y = converted.year; m = converted.month; d = converted.day;
+  }
 
   let hour=0, minute=0, hasTime=false;
   if(selectedSijin !== null){
