@@ -441,6 +441,7 @@ body.has-float-bar{ padding-bottom: 92px; }
     </div>
 
     <div id="premiumWrap" style="position:relative; margin-top:28px;">
+      <button type="button" id="relockBtn" style="position:absolute; top:-36px; right:0; z-index:5; background:transparent; border:1px solid rgba(201,162,75,.3); color:var(--paper-dim); font-size:11px; padding:5px 10px; border-radius:8px; cursor:pointer; font-family:inherit;">🔒 다시 잠그기 (미리보기용)</button>
       <div id="premiumBlurContent">
         <h2><span class="num">04</span> 신강 · 신약</h2>
         <div class="insight" id="strengthInsight"></div>
@@ -1629,10 +1630,13 @@ document.getElementById("spreadGroup").querySelectorAll(".pick-btn").forEach(btn
 document.getElementById("redrawBtn").addEventListener("click", resetSpread);
 
 document.getElementById("unlockBtn").addEventListener("click", function(){
-  this.disabled = true;
-  this.textContent = "결제 준비 중";
-  const note = document.querySelector("#premiumOverlay .premium-note");
-  if(note) note.textContent = "빠른 시일 내에 결제 기능을 연결할게요. 조금만 기다려주세요!";
+  document.getElementById("premiumBlurContent").classList.add("unlocked");
+  document.getElementById("premiumOverlay").classList.add("hidden");
+});
+
+document.getElementById("relockBtn").addEventListener("click", function(){
+  document.getElementById("premiumBlurContent").classList.remove("unlocked");
+  document.getElementById("premiumOverlay").classList.remove("hidden");
 });
 
 function startSpread(key){
