@@ -266,6 +266,60 @@ button.primary:active{ transform: translateY(0); }
   border-top: 1px solid rgba(201,162,75,.15); padding-top:18px;
 }
 
+/* 심층 콘텐츠 잠금 */
+#premiumBlurContent{
+  filter: blur(7px);
+  user-select:none;
+  pointer-events:none;
+  max-height: 640px;
+  overflow: hidden;
+}
+#premiumBlurContent.unlocked{
+  filter: none;
+  pointer-events:auto;
+  max-height: none;
+}
+#premiumOverlay{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; text-align:center; padding:24px;
+  background: linear-gradient(180deg, rgba(10,10,18,.35), rgba(10,10,18,.75));
+  border-radius: 16px;
+}
+#premiumOverlay.hidden{ display:none; }
+.premium-lock-icon{ font-size:34px; margin-bottom:4px; }
+.premium-title{
+  font-family:'Noto Serif KR',serif; font-size:16px; color: var(--gold-bright);
+  max-width:320px; line-height:1.6;
+}
+.premium-list{
+  list-style:none; padding:0; margin: 4px 0 8px; max-width:300px;
+  display:flex; flex-direction:column; gap:5px;
+}
+.premium-list li{
+  font-size:12.5px; color: var(--paper); text-align:left;
+  padding-left:18px; position:relative;
+}
+.premium-list li::before{
+  content:"✦"; position:absolute; left:0; color: var(--gold); font-size:11px;
+}
+.premium-price{ font-size:20px; font-weight:700; color: var(--gold); font-family:'Noto Serif KR',serif; }
+
+/* 주제별 운세 카드 */
+.topic-grid{
+  display:grid; grid-template-columns: repeat(2, 1fr); gap:14px;
+}
+.topic-card{
+  background: rgba(255,255,255,.03); border:1px solid rgba(201,162,75,.2);
+  border-radius: 12px; padding: 16px 18px;
+}
+.topic-label{ font-family:'Noto Serif KR',serif; font-size:14px; color: var(--gold-bright); margin-bottom:8px; }
+.topic-card p{ font-size:13.5px; line-height:1.75; color: var(--paper); margin:0; }
+@media (max-width: 560px){
+  .topic-grid{ grid-template-columns: 1fr; }
+}
+.premium-note{ font-size:12px; color: var(--paper-dim); margin-top:4px; }
+
 /* 하단 고정 이메일 바 */
 #emailFloatBar{
   position: fixed; left:0; right:0; bottom:0; z-index: 50;
@@ -381,61 +435,113 @@ body.has-float-bar{ padding-bottom: 92px; }
     <div class="ohbars" id="ohBox"></div>
     <div class="insight" id="ohInsight"></div>
 
-    <h2 style="margin-top:28px;"><span class="num">04</span> 신강 · 신약</h2>
-    <div class="insight" id="strengthInsight"></div>
+    <div id="teaserBox" style="margin-top:22px; padding:16px 18px; border-radius:12px; background: linear-gradient(135deg, rgba(201,162,75,.12), rgba(184,67,63,.08)); border:1px solid rgba(201,162,75,.3);">
+      <p style="font-size:12px; color: var(--gold); letter-spacing:.1em; margin:0 0 8px;">오늘의 한 줄 요약</p>
+      <p id="teaserText" style="font-size:15px; line-height:1.7; margin:0;"></p>
+    </div>
 
-    <h2 style="margin-top:28px;"><span class="num">05</span> 십신(十神) — 오행이 나에게 갖는 의미</h2>
-    <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 18px; line-height:1.7;">
-      같은 오행이라도 일간(日干, 나 자신)을 기준으로 어떤 관계인지에 따라 의미가 달라집니다.
-      각 글자 아래 붉은 글씨가 그 글자의 십신이에요.
-    </p>
-    <div class="ohbars" id="sipsinBox"></div>
-    <div class="insight" id="sipsinInsight"></div>
-    <div id="sipsinDetailList" style="margin-top:14px; display:flex; flex-direction:column; gap:10px;"></div>
+    <div id="premiumWrap" style="position:relative; margin-top:28px;">
+      <div id="premiumBlurContent">
+        <h2><span class="num">04</span> 신강 · 신약</h2>
+        <div class="insight" id="strengthInsight"></div>
 
-    <h2 style="margin-top:28px;"><span class="num">06</span> 종합 총평</h2>
-    <div class="insight" id="summaryInsight" style="font-size:15px;"></div>
+        <h2 style="margin-top:28px;"><span class="num">05</span> 십신(十神) — 오행이 나에게 갖는 의미</h2>
+        <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 18px; line-height:1.7;">
+          같은 오행이라도 일간(日干, 나 자신)을 기준으로 어떤 관계인지에 따라 의미가 달라집니다.
+          각 글자 아래 붉은 글씨가 그 글자의 십신이에요.
+        </p>
+        <div class="ohbars" id="sipsinBox"></div>
+        <div class="insight" id="sipsinInsight"></div>
+        <div id="sipsinDetailList" style="margin-top:14px; display:flex; flex-direction:column; gap:10px;"></div>
 
-    <h2 style="margin-top:28px;"><span class="num">07</span> 대운(大運) — 10년 단위 흐름</h2>
-    <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 14px; line-height:1.7;">
-      월주를 기준으로 성별·연간(年干)의 음양에 따라 순행 또는 역행하며 10년씩 이어지는 큰 흐름이에요. 지금 나이가 속한 대운에 금빛 테두리가 표시돼요.
-    </p>
-    <div id="daeunNote" class="insight" style="display:none;"></div>
-    <div class="pillars" id="daeunBox" style="grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); overflow-x:auto;"></div>
+        <h2 style="margin-top:28px;"><span class="num">06</span> 재물 · 연애 · 직업 · 건강운</h2>
+        <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 18px; line-height:1.7;">
+          십신과 오행이 실제 삶의 어느 영역에서 어떻게 드러나는지 주제별로 풀어드려요.
+        </p>
+        <div class="topic-grid">
+          <div class="topic-card">
+            <div class="topic-label">💰 재물운</div>
+            <p id="wealthInsight"></p>
+          </div>
+          <div class="topic-card">
+            <div class="topic-label">💞 연애운</div>
+            <p id="loveInsight"></p>
+          </div>
+          <div class="topic-card">
+            <div class="topic-label">💼 직업운</div>
+            <p id="careerInsight"></p>
+          </div>
+          <div class="topic-card">
+            <div class="topic-label">🩺 건강운</div>
+            <p id="healthInsight"></p>
+          </div>
+        </div>
 
-    <h2 style="margin-top:28px;"><span class="num">08</span> 세운(歲運) — 올해부터 5년</h2>
-    <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 14px; line-height:1.7;">
-      한 해 단위로 들어오는 운이에요. 일간을 기준으로 그 해 간지가 어떤 십신에 해당하는지 함께 봅니다.
-    </p>
-    <div id="seunList" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <h2 style="margin-top:28px;"><span class="num">07</span> 종합 총평</h2>
+        <div class="insight" id="summaryInsight" style="font-size:15px;"></div>
 
-    <h2 style="margin-top:28px;"><span class="num">09</span> 신살(神殺)</h2>
-    <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 18px; line-height:1.7;">
-      사주 지지(地支)의 조합으로 보는 12신살 — 겁살·재살·천살·지살·도화살·월살·망신살·장성살·반안살·역마살·육해살·화개살 중 이 사주에 있는 것들을 보여줘요.
-    </p>
-    <div id="sinsalList" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <h2 style="margin-top:28px;"><span class="num">08</span> 대운(大運) — 10년 단위 흐름</h2>
+        <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 14px; line-height:1.7;">
+          월주를 기준으로 성별·연간(年干)의 음양에 따라 순행 또는 역행하며 10년씩 이어지는 큰 흐름이에요. 지금 나이가 속한 대운에 금빛 테두리가 표시돼요.
+        </p>
+        <div id="daeunNote" class="insight" style="display:none;"></div>
+        <div class="pillars" id="daeunBox" style="grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); overflow-x:auto;"></div>
 
-    <div id="nameSection" class="hidden">
-      <h2 style="margin-top:28px;"><span class="num">10</span> 이름의 발음오행(發音五行)</h2>
-      <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 18px; line-height:1.7;">
-        이름 각 글자의 첫 자음(초성)을 오행으로 분류하는 성명학 이론이에요. 사주에서 부족한 기운을 이름이 보완해주는지 함께 봅니다.
-      </p>
-      <div class="pillars" id="nameCharsBox" style="grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));"></div>
-      <div class="insight" id="nameInsight" style="margin-top:14px;"></div>
+        <h2 style="margin-top:28px;"><span class="num">09</span> 세운(歲運) — 올해부터 5년</h2>
+        <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 14px; line-height:1.7;">
+          한 해 단위로 들어오는 운이에요. 일간을 기준으로 그 해 간지가 어떤 십신에 해당하는지 함께 봅니다.
+        </p>
+        <div id="seunList" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+        <h2 style="margin-top:28px;"><span class="num">10</span> 신살(神殺)</h2>
+        <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 18px; line-height:1.7;">
+          사주 지지(地支)의 조합으로 보는 12신살 — 겁살·재살·천살·지살·도화살·월살·망신살·장성살·반안살·역마살·육해살·화개살 중 이 사주에 있는 것들을 보여줘요.
+        </p>
+        <div id="sinsalList" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+        <div id="nameSection" class="hidden">
+          <h2 style="margin-top:28px;"><span class="num">11</span> 이름의 발음오행(發音五行)</h2>
+          <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 18px; line-height:1.7;">
+            이름 각 글자의 첫 자음(초성)을 오행으로 분류하는 성명학 이론이에요. 사주에서 부족한 기운을 이름이 보완해주는지 함께 봅니다.
+          </p>
+          <div class="pillars" id="nameCharsBox" style="grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));"></div>
+          <div class="insight" id="nameInsight" style="margin-top:14px;"></div>
+        </div>
+      </div>
+
+      <div id="premiumOverlay">
+        <div class="premium-lock-icon">🔒</div>
+        <p class="premium-title">전체 풀이 잠금 해제</p>
+        <p style="font-size:12.5px; color: var(--paper-dim); max-width:300px; margin:-4px 0 4px;">아래 9가지를 한 번에 다 볼 수 있어요</p>
+        <ul class="premium-list">
+          <li>신강 · 신약 판단</li>
+          <li>십신(十神) 자리별 상세 해설</li>
+          <li>재물 · 연애 · 직업 · 건강운</li>
+          <li>사주 종합 총평</li>
+          <li>대운(大運) 8구간 — 80년치 흐름</li>
+          <li>세운(歲運) — 올해부터 5년</li>
+          <li>12신살 전체 분석</li>
+          <li>이름 발음오행 궁합</li>
+          <li>타로 3장 · 5장 · 10장 스프레드</li>
+        </ul>
+        <p class="premium-price">2,500원</p>
+        <button type="button" id="unlockBtn" class="primary" style="max-width:260px;">잠금 해제하기</button>
+        <p class="premium-note">결제 기능은 아직 준비 중이에요. 곧 연결될 예정입니다.</p>
+      </div>
     </div>
   </div>
 
   <div class="card hidden" id="tarotSection">
-    <h2><span class="num">11</span> 타로 스프레드</h2>
+    <h2><span class="num">12</span> 타로 스프레드</h2>
     <div class="tarot-zone">
 
       <div id="spreadChoice">
         <p class="draw-hint">어떤 스프레드로 볼까요?</p>
         <div class="btn-group" id="spreadGroup" style="justify-content:center;">
           <button type="button" class="pick-btn" data-spread="one">원 카드 · 1장</button>
-          <button type="button" class="pick-btn" data-spread="three">과거·현재·미래 · 3장</button>
-          <button type="button" class="pick-btn" data-spread="choice">양자택일 · 5장</button>
-          <button type="button" class="pick-btn" data-spread="celtic">켈틱 크로스 · 10장</button>
+          <button type="button" class="pick-btn locked-spread" data-spread="three">🔒 과거·현재·미래 · 3장</button>
+          <button type="button" class="pick-btn locked-spread" data-spread="choice">🔒 양자택일 · 5장</button>
+          <button type="button" class="pick-btn locked-spread" data-spread="celtic">🔒 켈틱 크로스 · 10장</button>
         </div>
       </div>
 
@@ -863,6 +969,88 @@ function countSipsinGroups(sipsinMap){
   return counts;
 }
 
+function countSpecificSipsin(sipsinMap, name){
+  let c = 0;
+  Object.values(sipsinMap).forEach(pair=>{
+    if(pair.stem === name) c++;
+    if(pair.branch === name) c++;
+  });
+  return c;
+}
+
+/* ===== 주제별 해석 데이터 ===== */
+const CAREER_BY_GROUP = {
+  "비겁": "또래·동료와 대등하게 겨루거나, 스스로 판단하고 움직이는 일에서 강점이 발휘돼요. 조직에 속하더라도 자기 몫을 확실히 챙기는 프리랜서형 업무, 1인 사업, 전문직 개업처럼 스스로 주도권을 쥐는 형태가 잘 맞아요.",
+  "식상": "머릿속 아이디어를 구체적인 결과물로 표현하는 일에서 두각을 나타내요. 콘텐츠 제작, 기획, 요리, 예체능처럼 창의성과 표현력이 직접 성과로 이어지는 분야가 유리해요.",
+  "재성": "숫자와 자원을 다루는 감각이 좋은 편이에요. 영업, 유통, 재무, 투자처럼 실질적인 이익과 직결되는 업무에서 능력이 발휘돼요.",
+  "관성": "정해진 체계 안에서 책임을 맡을 때 안정감을 느껴요. 공직, 대기업, 관리직처럼 조직의 틀이 명확한 환경에서 신뢰받는 편이에요.",
+  "인성": "배우고 연구하는 과정 자체에서 만족을 느껴요. 교육, 연구, 자격증 기반 전문직처럼 지식이 곧 경쟁력이 되는 분야가 잘 맞아요."
+};
+
+const LOVE_BY_SIPSIN = {
+  "비견": "배우자를 동등한 파트너로 여기는 관계를 선호해요. 서로의 독립적인 영역을 존중해주는 상대와 잘 맞아요.",
+  "겁재": "관계에서도 주도적인 편이라, 끌려다니기보다 함께 방향을 만들어가는 상대를 선호해요.",
+  "식신": "표현이 풍부하고 함께 즐거움을 나누는 관계를 추구해요. 대화가 잘 통하고 있을 때 편안한 상대에게 끌려요.",
+  "상관": "틀에 박히지 않은 관계를 좋아해요. 자유롭게 자기 생각을 표현해도 받아주는 상대와 잘 맞아요.",
+  "편재": "활동적이고 폭넓은 관계를 즐기는 편이에요. 함께 새로운 걸 경험하는 상대에게 매력을 느껴요.",
+  "정재": "안정적이고 현실적인 기반을 함께 만들어가는 관계를 중요하게 생각해요.",
+  "편관": "강렬한 끌림이나 자극이 있는 관계에 끌리는 편이에요. 다만 관계가 일방적으로 흐르지 않게 균형이 필요해요.",
+  "정관": "책임감 있고 든든한 상대에게 끌려요. 관계에서도 예의와 신뢰를 중요하게 여겨요.",
+  "편인": "정서적으로 깊이 이해받는 관계를 원해요. 독특한 교감을 나눌 수 있는 상대와 잘 맞아요.",
+  "정인": "편안하고 안정감 있는 관계를 선호해요. 대화보다 함께 있는 존재감 자체가 힘이 되는 상대와 잘 맞아요."
+};
+
+const OH_ORGAN = {
+  wood: "간·담(간 기능, 근육과 눈 건강)",
+  fire: "심장·소장(순환기, 스트레스 관리)",
+  earth: "비장·위(소화기 계통)",
+  metal: "폐·대장(호흡기, 피부)",
+  water: "신장·방광(비뇨기, 뼈와 호르몬 균형)"
+};
+
+function renderTopicFortunes(sipsinMap, groupCounts, ohCounts){
+  // 직업운
+  const dominantGrp = Object.keys(groupCounts).sort((a,b)=>groupCounts[b]-groupCounts[a])[0];
+  document.getElementById("careerInsight").innerHTML = CAREER_BY_GROUP[dominantGrp];
+
+  // 재물운
+  const pyeonjae = countSpecificSipsin(sipsinMap, "편재");
+  const jeongjae = countSpecificSipsin(sipsinMap, "정재");
+  let wealthText;
+  if(pyeonjae === 0 && jeongjae === 0){
+    wealthText = "사주에 재성(財星)이 뚜렷하지 않아, 재물 자체보다 관계나 성취 같은 다른 가치에 우선순위를 두는 편일 수 있어요. 재물운은 대운·세운의 흐름에 따라 시기별로 크게 달라지니, 위쪽 대운·세운 흐름을 함께 참고해보세요.";
+  } else if(pyeonjae > jeongjae){
+    wealthText = "재물이 한 곳에 머물지 않고 여러 경로로 들어오고 나가는 편이에요. 투자나 사업 다각화 같은 확장형 재테크에 강점이 있지만, 씀씀이도 유동적이라 지출 관리가 관건이에요.";
+  } else if(jeongjae > pyeonjae){
+    wealthText = "정해진 수입을 꾸준히 모으는 축적형 재물운이에요. 급하게 불리기보다 성실하게 관리할 때 재산이 안정적으로 쌓이는 타입이에요.";
+  } else {
+    wealthText = "확장형과 축적형 재물운이 균형 있게 섞여 있어요. 상황에 따라 유연하게 대응하는 재물 감각을 가진 편이에요.";
+  }
+  document.getElementById("wealthInsight").innerHTML = wealthText;
+
+  // 연애운
+  const dayBranchSip = sipsinMap.day ? sipsinMap.day.branch : null;
+  let loveText = dayBranchSip ? LOVE_BY_SIPSIN[dayBranchSip] : "일지 정보를 확인할 수 없어요.";
+  if(maritalStatus === "기혼"){
+    loveText += " 이미 배우자가 있다면, 이 성향이 지금의 관계에서 실제로 어떻게 나타나는지 돌아보면 좋아요.";
+  } else if(maritalStatus === "미혼"){
+    loveText += " 앞으로 만날 인연도 이런 결을 가진 관계일 때 편안함을 느낄 가능성이 높아요.";
+  }
+  document.getElementById("loveInsight").innerHTML = loveText;
+
+  // 건강운
+  const ohSorted = OH_ORDER.slice().sort((a,b)=>ohCounts[b]-ohCounts[a]);
+  const strongOh = ohSorted[0], weakOh = ohSorted[ohSorted.length-1];
+  let healthText;
+  if(ohCounts[strongOh] === ohCounts[weakOh]){
+    healthText = "오행이 고르게 분포되어 있어 특별히 취약한 장부가 두드러지지 않아요. 평소처럼 규칙적인 생활 습관을 유지하는 정도로 충분해요.";
+  } else {
+    healthText = `오행 중 <b class="ohcolor ${strongOh}">${OH_NAME[strongOh]}</b> 기운이 과한 편이라 <b>${OH_ORGAN[strongOh]}</b> 쪽에 무리가 가지 않도록 관리하면 좋아요. 반대로 <b class="ohcolor ${weakOh}">${OH_NAME[weakOh]}</b> 기운이 부족해 <b>${OH_ORGAN[weakOh]}</b> 기능을 보완하는 생활 습관이 도움이 될 수 있어요.`;
+  }
+  healthText += `<br><span style="font-size:12px; color:var(--paper-dim);">※ 이는 전통 명리학의 상징적 해석이며 의학적 진단이 아니에요. 건강이 실제로 걱정되면 반드시 전문의와 상담하세요.</span>`;
+  document.getElementById("healthInsight").innerHTML = healthText;
+}
+
 function countOhang(saju){
   const counts = {wood:0, fire:0, earth:0, metal:0, water:0};
   const pillars = [saju.year, saju.month, saju.day, saju.hour].filter(Boolean);
@@ -1078,9 +1266,11 @@ document.getElementById("birthForm").addEventListener("submit", function(e){
   renderIljuPersonality(currentSaju);
   renderOhangBars(currentCounts);
   renderInsight(currentCounts);
+  renderTeaser(currentSaju, currentCounts);
   renderStrength(groupCounts);
   renderSipsin(sipsinMap);
   renderSipsinDetail(currentSaju, sipsinMap);
+  renderTopicFortunes(sipsinMap, groupCounts, currentCounts);
   renderSummary(currentSaju, currentCounts, groupCounts);
   renderDaeunSeun(currentSaju, y, m, d);
   renderSinsal(currentSaju);
@@ -1380,6 +1570,14 @@ function renderInsight(counts){
   el.dataset.strong = strongest;
 }
 
+function renderTeaser(saju, counts){
+  const idx = saju.day.stemIdx;
+  const sorted = OH_ORDER.slice().sort((a,b)=>counts[b]-counts[a]);
+  const strongest = sorted[0];
+  const el = document.getElementById("teaserText");
+  el.innerHTML = `일간 <b>${STEMS[idx]}(${STEM_HANJA[idx]})</b>의 기운을 타고났고, 지금은 <b class="ohcolor ${strongest}">${OH_NAME[strongest]}</b> 기운이 가장 두드러지는 시기예요. 이 흐름이 신강인지 신약인지, 어떤 십신과 만나 어떻게 발현되는지는 아래 심층 풀이에서 확인할 수 있어요.`;
+}
+
 /* ============ 타로 스프레드 시스템 ============ */
 const SPREADS = {
   one:   { label:"원 카드", positions:["오늘의 카드"] },
@@ -1420,9 +1618,22 @@ function getComboText(cardOh, weak, strong){
 }
 
 document.getElementById("spreadGroup").querySelectorAll(".pick-btn").forEach(btn=>{
-  btn.addEventListener("click", ()=> startSpread(btn.dataset.spread));
+  btn.addEventListener("click", ()=>{
+    if(btn.classList.contains("locked-spread")){
+      alert("이 스프레드는 전체 풀이 잠금 해제(2,500원)에 포함돼요. 결제 기능은 곧 연결될 예정이에요!");
+      return;
+    }
+    startSpread(btn.dataset.spread);
+  });
 });
 document.getElementById("redrawBtn").addEventListener("click", resetSpread);
+
+document.getElementById("unlockBtn").addEventListener("click", function(){
+  this.disabled = true;
+  this.textContent = "결제 준비 중";
+  const note = document.querySelector("#premiumOverlay .premium-note");
+  if(note) note.textContent = "빠른 시일 내에 결제 기능을 연결할게요. 조금만 기다려주세요!";
+});
 
 function startSpread(key){
   currentSpread = SPREADS[key];
