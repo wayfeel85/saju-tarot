@@ -364,6 +364,8 @@ body.has-float-bar{ padding-bottom: 92px; }
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div class="stars"></div>
@@ -509,6 +511,7 @@ body.has-float-bar{ padding-bottom: 92px; }
         <div id="daeunNote" class="insight" style="display:none;"></div>
         <div class="pillars" id="daeunBox" style="grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); overflow-x:auto;"></div>
         <div id="currentDaeunInsight" class="insight" style="margin-top:14px; text-align:left;"></div>
+        <div id="goldenAgeInsight" class="insight" style="margin-top:10px; text-align:left; border-left:3px solid var(--gold-bright);"></div>
 
         <h2 style="margin-top:28px;"><span class="num">09</span> 세운(歲運) — 올해부터 5년</h2>
         <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 14px; line-height:1.7;">
@@ -516,46 +519,70 @@ body.has-float-bar{ padding-bottom: 92px; }
         </p>
         <div id="seunList" style="display:flex; flex-direction:column; gap:10px;"></div>
 
-        <h2 style="margin-top:28px;"><span class="num">10</span> 신살(神殺)</h2>
+        <h2 style="margin-top:28px;"><span class="num">10</span> 월별 상세 운세 (올해)</h2>
+        <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 14px; line-height:1.7;">
+          절기를 기준으로 나눈 올해 12개월의 흐름이에요. 날짜는 절기 근사일 기준이라 실제와 하루 정도 오차가 있을 수 있어요.
+        </p>
+        <div id="monthlySeunList" style="display:flex; flex-direction:column; gap:8px;"></div>
+
+        <h2 style="margin-top:28px;"><span class="num">11</span> 신살(神殺)</h2>
         <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 18px; line-height:1.7;">
           사주 지지(地支)의 조합으로 보는 12신살 — 겁살·재살·천살·지살·도화살·월살·망신살·장성살·반안살·역마살·육해살·화개살 중 이 사주에 있는 것들을 보여줘요.
         </p>
         <div id="sinsalList" style="display:flex; flex-direction:column; gap:10px;"></div>
 
+        <h2 style="margin-top:28px;"><span class="num">12</span> 귀인(貴人) — 나를 도와주는 사람</h2>
+        <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 18px; line-height:1.7;">
+          천을귀인(天乙貴人)은 명리학에서 가장 널리 쓰이는 길신이에요. 일간을 기준으로 정해진 지지가 사주 안에 있으면, 위기 상황에서 도와주는 사람이나 기회를 만날 가능성이 높다고 봐요.
+        </p>
+        <div id="guiinList" style="display:flex; flex-direction:column; gap:10px;"></div>
+
         <div id="nameSection" class="hidden">
-          <h2 style="margin-top:28px;"><span class="num">11</span> 이름의 발음오행(發音五行)</h2>
+          <h2 style="margin-top:28px;"><span class="num">13</span> 이름의 발음오행(發音五行)</h2>
           <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 18px; line-height:1.7;">
             이름 각 글자의 첫 자음(초성)을 오행으로 분류하는 성명학 이론이에요. 사주에서 부족한 기운을 이름이 보완해주는지 함께 봅니다.
           </p>
           <div class="pillars" id="nameCharsBox" style="grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));"></div>
           <div class="insight" id="nameInsight" style="margin-top:14px;"></div>
         </div>
+
+        <h2 style="margin-top:28px;"><span class="num">14</span> 운명을 바꾸는 방법(개운법)</h2>
+        <p style="font-size:13px; color:var(--paper-dim); margin:-8px 0 18px; line-height:1.7;">
+          사주에서 가장 부족한 기운을 일상에서 보완할 수 있는 전통 개운법이에요.
+        </p>
+        <div id="gaeunBox" class="topic-grid"></div>
       </div>
 
       <div id="premiumOverlay">
-        <div class="premium-lock-icon">🔒</div>
-        <p class="premium-title">전체 풀이 잠금 해제</p>
-        <p style="font-size:12.5px; color: var(--paper-dim); max-width:300px; margin:-4px 0 4px;">아래 9가지를 한 번에 다 볼 수 있어요</p>
+        <div class="premium-lock-icon">📖</div>
+        <p class="premium-title">프리미엄 인생종합 리포트</p>
+        <p style="font-size:12.5px; color: var(--paper-dim); max-width:300px; margin:-4px 0 4px;">A4 100페이지 분량 · 아래 10개 챕터를 전부 담았어요</p>
         <ul class="premium-list">
           <li>신강 · 신약 판단</li>
           <li>십신(十神) 자리별 상세 해설</li>
           <li>재물 · 연애 · 직업 · 건강운</li>
           <li>사주 종합 총평</li>
-          <li>대운(大運) 8구간 — 80년치 흐름</li>
-          <li>세운(歲運) — 올해부터 5년</li>
-          <li>12신살 전체 분석</li>
+          <li>대운(大運) 8구간 · 인생의 황금기</li>
+          <li>세운(歲運) · 월별 상세 운세</li>
+          <li>12신살 + 귀인(貴人) 전체 분석</li>
           <li>이름 발음오행 궁합</li>
+          <li>운명을 바꾸는 방법(개운법)</li>
           <li>타로 3장 · 5장 · 10장 스프레드</li>
         </ul>
-        <p class="premium-price">2,500원</p>
-        <button type="button" id="unlockBtn" class="primary" style="max-width:260px;">잠금 해제하기</button>
+        <p class="premium-price">4,900원</p>
+        <button type="button" id="unlockBtn" class="primary" style="max-width:260px;">리포트 잠금 해제하기</button>
         <p class="premium-note">결제 기능은 아직 준비 중이에요. 곧 연결될 예정입니다.</p>
       </div>
+    </div>
+
+    <div style="text-align:center; margin-top:24px;">
+      <button type="button" id="pdfBtn" style="background:transparent; border:1px solid rgba(201,162,75,.4); color:var(--gold); padding:12px 22px; border-radius:12px; cursor:pointer; font-family:'Noto Serif KR',serif; font-size:14px;">📄 전체 리포트 PDF로 저장</button>
+      <p id="pdfStatus" style="font-size:12px; color:var(--paper-dim); margin-top:8px;"></p>
     </div>
   </div>
 
   <div class="card hidden" id="tarotSection">
-    <h2><span class="num">12</span> 타로 스프레드</h2>
+    <h2><span class="num">15</span> 타로 스프레드</h2>
     <div class="tarot-zone">
 
       <div id="spreadChoice">
@@ -912,6 +939,23 @@ function getMonthIndex(month, day){
   return 10;
 }
 
+// 올해 12개월(절기 기준) 월운 계산 - calcSaju의 월주 계산 로직 재사용
+function calcMonthlySeun(year){
+  const yearStemIdx = mod(year - 4, 10);
+  const yinBaseTable = {0:2, 5:2, 1:4, 6:4, 2:6, 7:6, 3:8, 8:8, 4:0, 9:0};
+  const yinBase = yinBaseTable[yearStemIdx];
+
+  const months = [];
+  for(let monthIdx=0; monthIdx<12; monthIdx++){
+    const branchIdx = TERM_BRANCH[monthIdx];
+    const stemIdx = mod(yinBase + monthIdx, 10);
+    const term = SOLAR_TERMS[monthIdx];
+    const label = term.m === 1 ? `${year+1}.${term.m}.${term.d}~` : `${year}.${term.m}.${term.d}~`;
+    months.push({ stemIdx, branchIdx, startLabel: label });
+  }
+  return months;
+}
+
 function calcSaju(year, month, day, hour, minute, hasTime){
   const jdn = toJDN(year, month, day);
 
@@ -1030,6 +1074,40 @@ function calcDaeunList(saju, birthDate, gender){
 function yearPillarFor(year){
   return { stemIdx: mod(year-4, 10), branchIdx: mod(year-4, 12) };
 }
+
+// 천을귀인(天乙貴人): 일간 기준으로 정해진 두 지지
+const TIANYI_TABLE = {
+  0:[1,7], 4:[1,7], 6:[1,7],   // 갑무경 -> 축미
+  1:[0,8], 5:[0,8],            // 을기 -> 자신
+  2:[11,9], 3:[11,9],          // 병정 -> 해유
+  8:[3,5], 9:[3,5],            // 임계 -> 묘사
+  7:[6,2]                      // 신 -> 오인
+};
+
+function calcGuiin(saju){
+  const dayStemIdx = saju.day.stemIdx;
+  const targets = TIANYI_TABLE[dayStemIdx] || [];
+  const branches = {
+    year: saju.year.branchIdx, month: saju.month.branchIdx,
+    day: saju.day.branchIdx, hour: saju.hour ? saju.hour.branchIdx : null
+  };
+  const found = [];
+  Object.entries(branches).forEach(([key, idx])=>{
+    if(idx !== null && targets.includes(idx)){
+      found.push({ pillar: PILLAR_LABEL[key], branch: BRANCHES[idx] });
+    }
+  });
+  return found;
+}
+
+// 개운법: 오행별 색상/방향/숫자/활동
+const OH_GAEUN = {
+  wood: { color:"초록·청록색", direction:"동쪽", number:"3, 8", activity:"화초나 나무를 가까이 두기, 산책이나 등산, 아침 햇살 쬐기" },
+  fire: { color:"빨강·주황색", direction:"남쪽", number:"2, 7", activity:"밝은 조명 아래서 활동하기, 사람들과 어울리는 모임, 적당한 운동" },
+  earth:{ color:"노랑·갈색", direction:"중앙(집 안 중심부)", number:"5, 10", activity:"규칙적인 생활 루틴 만들기, 명상이나 도자기·원예 같은 손으로 하는 활동" },
+  metal:{ color:"흰색·금색", direction:"서쪽", number:"4, 9", activity:"주변 정리정돈, 원칙과 계획을 세워 실행하기, 금속 소재의 소품" },
+  water:{ color:"검정·남색", direction:"북쪽", number:"1, 6", activity:"독서와 사색, 수분 충분히 섭취하기, 낯선 곳으로의 여행" }
+};
 
 function assignSipsin(saju){
   const dayStemIdx = saju.day.stemIdx;
@@ -1402,8 +1480,10 @@ document.getElementById("birthForm").addEventListener("submit", function(e){
   renderSipsinDetail(currentSaju, sipsinMap);
   renderTopicFortunes(sipsinMap, groupCounts, currentCounts);
   renderSummary(currentSaju, currentCounts, groupCounts);
-  renderDaeunSeun(currentSaju, y, m, d);
+  renderDaeunSeun(currentSaju, y, m, d, groupCounts);
   renderSinsal(currentSaju);
+  renderGuiin(currentSaju);
+  renderGaeun(currentCounts);
   renderNameOhang(document.getElementById("bname").value, currentCounts);
 
   document.getElementById("sajuResult").classList.remove("hidden");
@@ -1416,12 +1496,14 @@ document.getElementById("birthForm").addEventListener("submit", function(e){
   document.getElementById("sajuResult").scrollIntoView({behavior:"smooth", block:"start"});
 });
 
-function renderDaeunSeun(saju, birthYear, birthMonth, birthDay){
+function renderDaeunSeun(saju, birthYear, birthMonth, birthDay, groupCounts){
   const daeunBox = document.getElementById("daeunBox");
   const daeunNote = document.getElementById("daeunNote");
   const seunList = document.getElementById("seunList");
+  const goldenAgeEl = document.getElementById("goldenAgeInsight");
   daeunBox.innerHTML = "";
   seunList.innerHTML = "";
+  goldenAgeEl.innerHTML = "";
 
   if(!genderSelected){
     daeunNote.style.display = "block";
@@ -1440,6 +1522,7 @@ function renderDaeunSeun(saju, birthYear, birthMonth, birthDay){
 
     const dayStemIdx = saju.day.stemIdx;
     let currentPeriod = null;
+    const scored = [];
     periods.forEach(p=>{
       const isCurrent = currentAge >= p.startAge && currentAge <= p.endAge;
       if(isCurrent) currentPeriod = p;
@@ -1455,6 +1538,7 @@ function renderDaeunSeun(saju, birthYear, birthMonth, birthDay){
         <div class="sipsin-tag">${branchSip}</div>
       `;
       daeunBox.appendChild(div);
+      scored.push({ period:p, stemSip, branchSip });
     });
 
     const currentInsightEl = document.getElementById("currentDaeunInsight");
@@ -1468,6 +1552,29 @@ function renderDaeunSeun(saju, birthYear, birthMonth, birthDay){
       `;
     } else {
       currentInsightEl.innerHTML = `현재 나이가 표에 표시된 대운 범위를 벗어나 있어요.`;
+    }
+
+    // 인생의 황금기: 신강/신약에 맞는 유리한 십신 그룹이 많이 나타나는 대운 찾기
+    if(groupCounts){
+      const strength = calcStrength(groupCounts);
+      const favorable = strength.type === "신강" ? ["식상","재성","관성"] : ["비겁","인성"];
+      let best = null, bestScore = -1;
+      scored.forEach(s=>{
+        const g1 = SIPSIN_INFO[s.stemSip].group, g2 = SIPSIN_INFO[s.branchSip].group;
+        const score = (favorable.includes(g1)?1:0) + (favorable.includes(g2)?1:0);
+        if(score > bestScore){ bestScore = score; best = s; }
+      });
+      if(best && bestScore > 0){
+        goldenAgeEl.innerHTML = `
+          <b>✨ 인생의 황금기: 만 ${best.period.startAge}~${best.period.endAge}세</b>
+          <p style="margin:8px 0 0; font-size:13.5px; line-height:1.8;">
+            지금 사주는 <b>${strength.type}</b> 쪽이라 ${favorable.join('·')} 기운이 들어올 때 힘을 가장 잘 쓸 수 있어요.
+            이 시기에 <b>${best.stemSip}</b>, <b>${best.branchSip}</b> 기운이 들어와서, 여덟 구간 중 가장 유리하게 작용할 가능성이 높은 시기예요.
+          </p>
+        `;
+      } else {
+        goldenAgeEl.innerHTML = `<p style="font-size:13.5px; line-height:1.8;">특별히 두드러지는 황금기 구간은 없지만, 대운은 흐름일 뿐 그 안에서 어떻게 쓰느냐가 더 중요해요.</p>`;
+      }
     }
   }
 
@@ -1491,6 +1598,75 @@ function renderDaeunSeun(saju, birthYear, birthMonth, birthDay){
     `;
     seunList.appendChild(div);
   }
+
+  renderMonthlySeun(dayStemIdx);
+}
+
+function renderMonthlySeun(dayStemIdx){
+  const box = document.getElementById("monthlySeunList");
+  box.innerHTML = "";
+  const thisYear = new Date().getFullYear();
+  const months = calcMonthlySeun(thisYear);
+  const monthNames = ["인월(1월경)","묘월(2월경)","진월(3월경)","사월(4월경)","오월(5월경)","미월(6월경)","신월(7월경)","유월(8월경)","술월(9월경)","해월(10월경)","자월(11월경)","축월(12월경)"];
+  months.forEach((m, i)=>{
+    const stemSip = getSipsin(dayStemIdx, STEM_OH[m.stemIdx], STEM_YY[m.stemIdx]);
+    const branchSip = getSipsin(dayStemIdx, BRANCH_OH[m.branchIdx], BRANCH_YY[m.branchIdx]);
+    const div = document.createElement("div");
+    div.className = "insight";
+    div.style.textAlign = "left";
+    div.style.margin = "0";
+    div.style.padding = "14px 16px";
+    div.innerHTML = `
+      <b>${monthNames[i]}</b> <span style="font-size:12px; color:var(--paper-dim);">(${m.startLabel})</span> · ${STEMS[m.stemIdx]}${BRANCHES[m.branchIdx]}월
+      <p style="margin:8px 0 0; font-size:13.5px; line-height:1.8; color:var(--paper);">${SIPSIN_CONCRETE[stemSip]}</p>
+      <p style="margin:6px 0 0; font-size:13.5px; line-height:1.8; color:var(--paper-dim);">${SIPSIN_CONCRETE[branchSip]}</p>
+    `;
+    box.appendChild(div);
+  });
+}
+
+function renderGuiin(saju){
+  const box = document.getElementById("guiinList");
+  box.innerHTML = "";
+  const found = calcGuiin(saju);
+  if(found.length === 0){
+    box.innerHTML = `<div class="insight" style="margin:0;">이 사주에는 천을귀인이 뚜렷하게 나타나지 않아요. 귀인이 없다고 나쁜 건 아니고, 스스로의 힘으로 길을 만들어가는 유형에 가까워요.</div>`;
+    return;
+  }
+  found.forEach(item=>{
+    const div = document.createElement("div");
+    div.className = "insight";
+    div.style.margin = "0";
+    div.innerHTML = `<b>${item.pillar}</b>에 천을귀인(${item.branch})이 있어요. 어려운 상황에서 뜻밖의 도움을 주는 사람이나 기회를 만날 가능성이 높아요.`;
+    box.appendChild(div);
+  });
+}
+
+function renderGaeun(counts){
+  const box = document.getElementById("gaeunBox");
+  box.innerHTML = "";
+  const sorted = OH_ORDER.slice().sort((a,b)=>counts[a]-counts[b]);
+  const weak = sorted[0];
+  const g = OH_GAEUN[weak];
+  const items = [
+    { label:"🎨 색상", value: g.color },
+    { label:"🧭 방향", value: g.direction },
+    { label:"🔢 숫자", value: g.number },
+    { label:"🌿 활동", value: g.activity }
+  ];
+  items.forEach(it=>{
+    const div = document.createElement("div");
+    div.className = "topic-card";
+    div.innerHTML = `<div class="topic-label">${it.label}</div><p>${it.value}</p>`;
+    box.appendChild(div);
+  });
+  const note = document.createElement("div");
+  note.style.gridColumn = "1 / -1";
+  note.style.fontSize = "12.5px";
+  note.style.color = "var(--paper-dim)";
+  note.style.marginTop = "4px";
+  note.innerHTML = `사주에서 가장 부족한 <b class="ohcolor ${weak}">${OH_NAME[weak]}</b> 기운을 보완하는 방향이에요. 과학적으로 검증된 방법은 아니지만, 전통적으로 균형을 되찾는 실천법으로 활용돼요.`;
+  box.appendChild(note);
 }
 
 function renderSinsal(saju){
@@ -1767,7 +1943,7 @@ function getComboText(cardOh, weak, strong){
 document.getElementById("spreadGroup").querySelectorAll(".pick-btn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     if(btn.classList.contains("locked-spread")){
-      alert("이 스프레드는 전체 풀이 잠금 해제(2,500원)에 포함돼요. 결제 기능은 곧 연결될 예정이에요!");
+      alert("이 스프레드는 프리미엄 인생종합 리포트(4,900원)에 포함돼요. 결제 기능은 곧 연결될 예정이에요!");
       return;
     }
     startSpread(btn.dataset.spread);
@@ -1783,6 +1959,59 @@ document.getElementById("unlockBtn").addEventListener("click", function(){
 document.getElementById("relockBtn").addEventListener("click", function(){
   document.getElementById("premiumBlurContent").classList.remove("unlocked");
   document.getElementById("premiumOverlay").classList.remove("hidden");
+});
+
+document.getElementById("pdfBtn").addEventListener("click", async function(){
+  const statusEl = document.getElementById("pdfStatus");
+  const isUnlocked = document.getElementById("premiumBlurContent").classList.contains("unlocked");
+
+  if(!isUnlocked){
+    statusEl.textContent = "PDF로 저장하려면 먼저 위에서 리포트 잠금을 해제해주세요.";
+    return;
+  }
+  if(typeof html2canvas === "undefined" || typeof window.jspdf === "undefined"){
+    statusEl.textContent = "PDF 생성 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 다시 시도해주세요.";
+    return;
+  }
+
+  const btn = this;
+  btn.disabled = true;
+  btn.textContent = "PDF 생성 중... (몇 초 걸려요)";
+  statusEl.textContent = "";
+
+  try{
+    const target = document.getElementById("sajuResult");
+    const canvas = await html2canvas(target, { scale: 2, backgroundColor: "#12131f", useCORS: true });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "pt", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pageWidth;
+    const imgHeight = canvas.height * (imgWidth / canvas.width);
+    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+
+    let heightLeft = imgHeight;
+    let position = 0;
+    pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while(heightLeft > 0){
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    const pageCount = pdf.internal.getNumberOfPages();
+    pdf.save("명사_사주타로_리포트.pdf");
+    statusEl.textContent = `PDF 저장 완료! (총 ${pageCount}페이지)`;
+  } catch(err){
+    console.error(err);
+    statusEl.textContent = "PDF 생성 중 문제가 생겼어요. 다시 시도해주세요.";
+  }
+
+  btn.disabled = false;
+  btn.textContent = "📄 전체 리포트 PDF로 저장";
 });
 
 function startSpread(key){
