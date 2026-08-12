@@ -381,6 +381,7 @@ body.has-float-bar{ padding-bottom: 92px; }
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
 </head>
 <body>
 <div class="stars"></div>
@@ -480,6 +481,31 @@ body.has-float-bar{ padding-bottom: 92px; }
     <div id="teaserBox" style="margin-top:22px; padding:16px 18px; border-radius:12px; background: linear-gradient(135deg, rgba(201,162,75,.12), rgba(184,67,63,.08)); border:1px solid rgba(201,162,75,.3);">
       <p style="font-size:12px; color: var(--gold); letter-spacing:.1em; margin:0 0 8px;">오늘의 한 줄 요약</p>
       <p id="teaserText" style="font-size:15px; line-height:1.7; margin:0;"></p>
+    </div>
+
+    <div style="margin-top:14px; display:flex; justify-content:center;">
+      <button type="button" id="shareCardBtn" class="pick-btn" style="width:100%; max-width:360px; padding:13px 16px; font-size:14px;">📤 결과 카드로 공유하기</button>
+    </div>
+    <p id="shareStatus" style="font-size:12px; color:var(--paper-dim); text-align:center; margin:8px 0 0;"></p>
+
+    <!-- SNS 공유용 카드 (화면 밖에 렌더링, html2canvas로 캡처) -->
+    <div id="shareCard" style="position:fixed; left:-99999px; top:0; width:1080px; height:1350px; background: radial-gradient(ellipse at top, #1c1a2e, #0a0a12 70%); font-family:'Noto Serif KR', serif; color:#ede6d3; padding:90px 80px; box-sizing:border-box; display:flex; flex-direction:column;">
+      <div style="text-align:center; letter-spacing:.35em; font-size:20px; color:#c9a24b;">命絲 · MYEONGSA</div>
+      <div style="text-align:center; font-size:15px; color:#b9b19a; margin-top:8px; letter-spacing:.05em;">사주 × 타로</div>
+
+      <div id="shareIljuLine" style="text-align:center; font-size:46px; color:#e8c874; margin-top:100px; font-weight:700;"></div>
+      <div id="shareIljuDesc" style="text-align:center; font-size:22px; color:#b9b19a; line-height:1.7; margin-top:18px;"></div>
+
+      <div id="shareOhBars" style="margin-top:80px; display:flex; flex-direction:column; gap:20px;"></div>
+
+      <div style="margin-top:64px; padding:34px 38px; border-radius:20px; background:rgba(201,162,75,.12); border:1px solid rgba(201,162,75,.35);">
+        <div style="font-size:16px; color:#c9a24b; letter-spacing:.1em; margin-bottom:14px;">오늘의 한 줄 요약</div>
+        <div id="shareTeaserText" style="font-size:23px; line-height:1.85;"></div>
+      </div>
+
+      <div style="margin-top:auto; text-align:center; font-size:18px; color:#b9b19a; padding-top:60px;">
+        무료로 내 사주 확인하기<br><b style="color:#e8c874; font-size:24px;">magical-stardust-b0a231.netlify.app</b>
+      </div>
     </div>
 
     <div id="premiumWrap" style="position:relative; margin-top:28px;">
@@ -626,7 +652,7 @@ body.has-float-bar{ padding-bottom: 92px; }
         </ul>
         <p class="premium-price">4,900원</p>
         <button type="button" id="unlockBtn" class="primary" style="max-width:260px;">리포트 잠금 해제하기</button>
-        <p class="premium-note">결제 기능은 아직 준비 중이에요. 곧 연결될 예정입니다.</p>
+        <p id="paymentStatus" class="premium-note"></p>
       </div>
     </div>
 
@@ -1421,6 +1447,10 @@ function calcCompatibility(mySaju, partnerSaju){
 
 let currentSaju = null;
 let currentCounts = null;
+let currentSipsinMap = null;
+let currentGroupCounts = null;
+let currentBirthY = null, currentBirthM = null, currentBirthD = null, currentBirthName = "";
+let isPremiumUnlocked = false;
 let maritalStatus = "unset";
 let genderSelected = null;
 
@@ -1654,25 +1684,22 @@ document.getElementById("birthForm").addEventListener("submit", function(e){
 
   currentSaju = calcSaju(y,m,d,hour,minute,hasTime);
   currentCounts = countOhang(currentSaju);
-  const sipsinMap = assignSipsin(currentSaju);
-  const groupCounts = countSipsinGroups(sipsinMap);
+  currentSipsinMap = assignSipsin(currentSaju);
+  currentGroupCounts = countSipsinGroups(currentSipsinMap);
+  currentBirthY = y; currentBirthM = m; currentBirthD = d;
+  currentBirthName = document.getElementById("bname").value;
+  isPremiumUnlocked = false;
 
-  renderPillars(currentSaju, sipsinMap);
+  // 무료 미리보기 영역만 렌더링 — 프리미엄 리포트(04~15)는 결제 확인 후 renderPremiumReport()에서 렌더링
+  renderPillars(currentSaju, currentSipsinMap);
   renderIljuPersonality(currentSaju);
   renderOhangBars(currentCounts);
   renderInsight(currentCounts);
   renderTeaser(currentSaju, currentCounts);
-  renderStrength(groupCounts);
-  renderSipsin(sipsinMap);
-  renderSipsinDetail(currentSaju, sipsinMap);
-  renderTopicFortunes(sipsinMap, groupCounts, currentCounts);
-  renderSummary(currentSaju, currentCounts, groupCounts);
-  renderSajuStats(currentSaju, groupCounts, calcStrength(groupCounts));
-  renderDaeunSeun(currentSaju, y, m, d, groupCounts);
-  renderSinsal(currentSaju);
-  renderGuiin(currentSaju);
-  renderGaeun(currentCounts);
-  renderNameOhang(document.getElementById("bname").value, currentCounts);
+  renderShareCard(currentSaju, currentCounts);
+
+  document.getElementById("premiumBlurContent").classList.remove("unlocked");
+  document.getElementById("premiumOverlay").classList.remove("hidden");
 
   document.getElementById("sajuResult").classList.remove("hidden");
   document.getElementById("tarotSection").classList.remove("hidden");
@@ -2166,6 +2193,99 @@ function renderTeaser(saju, counts){
   el.innerHTML = `일간 <b>${STEMS[idx]}(${STEM_HANJA[idx]})</b>의 기운을 타고났고, 지금은 <b class="ohcolor ${strongest}">${OH_NAME[strongest]}</b> 기운이 가장 두드러지는 시기예요. 이 흐름이 신강인지 신약인지, 어떤 십신과 만나 어떻게 발현되는지는 아래 심층 풀이에서 확인할 수 있어요.`;
 }
 
+const SHARE_OH_COLOR = {wood:"#6a8f5a", fire:"#c1503f", earth:"#b98a44", metal:"#b9b9c2", water:"#4d6f9c"};
+
+function renderShareCard(saju, counts){
+  const idx = saju.day.stemIdx;
+  const bIdx = saju.day.branchIdx;
+  const combinedIdx = ganzhiCombinedIndex(idx, bIdx);
+  const iljuName = STEMS[idx] + BRANCHES[bIdx];
+
+  document.getElementById("shareIljuLine").textContent = `일간 ${STEMS[idx]}(${STEM_HANJA[idx]})`;
+  document.getElementById("shareIljuDesc").textContent = `${iljuName} — 60갑자 중 ${combinedIdx+1}번째 조합, 전체의 1.67%（60명 중 1명）`;
+
+  const max = Math.max(...OH_ORDER.map(k=>counts[k]), 1);
+  document.getElementById("shareOhBars").innerHTML = OH_ORDER.map(k=>{
+    const pct = Math.max(8, Math.round((counts[k]/max)*100));
+    return `<div style="display:flex; align-items:center; gap:22px;">
+      <div style="width:74px; font-size:21px; color:#b9b19a;">${OH_NAME[k]}</div>
+      <div style="flex:1; height:28px; border-radius:14px; background:rgba(255,255,255,.06); overflow:hidden;">
+        <div style="width:${pct}%; height:100%; border-radius:14px; background:${SHARE_OH_COLOR[k]};"></div>
+      </div>
+      <div style="width:32px; font-size:21px; color:#e8c874; text-align:right;">${counts[k]}</div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("shareTeaserText").innerHTML = document.getElementById("teaserText").innerHTML;
+}
+
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById("shareCardBtn").addEventListener("click", async function(){
+  const statusEl = document.getElementById("shareStatus");
+  const btn = this;
+  if(!currentSaju){
+    statusEl.textContent = "먼저 위에서 사주팔자를 분석해주세요.";
+    return;
+  }
+  if(typeof html2canvas === "undefined"){
+    statusEl.textContent = "카드 생성 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 다시 시도해주세요.";
+    return;
+  }
+
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "카드 생성 중...";
+  statusEl.textContent = "";
+
+  try{
+    const card = document.getElementById("shareCard");
+    const canvas = await html2canvas(card, { scale: 1, backgroundColor: "#0a0a12", useCORS: true, width: 1080, height: 1350 });
+    canvas.toBlob(async function(blob){
+      if(!blob){
+        statusEl.textContent = "카드 생성 중 문제가 생겼어요. 다시 시도해주세요.";
+        btn.disabled = false;
+        btn.textContent = originalText;
+        return;
+      }
+      const filename = "명사_사주카드.png";
+      let shared = false;
+      if(navigator.canShare){
+        try{
+          const file = new File([blob], filename, { type: "image/png" });
+          if(navigator.canShare({ files: [file] })){
+            await navigator.share({ files: [file], title: "命絲 · 내 사주 카드", text: "내 사주를 확인해봤어요 ✨ 命絲에서 무료로 확인해보세요." });
+            shared = true;
+            statusEl.textContent = "공유 완료!";
+          }
+        } catch(shareErr){
+          if(shareErr && shareErr.name === "AbortError"){ shared = true; }
+        }
+      }
+      if(!shared){
+        downloadBlob(blob, filename);
+        statusEl.textContent = "이미지가 저장됐어요! SNS에 올려보세요 📸";
+      }
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }, "image/png");
+  } catch(err){
+    console.error(err);
+    statusEl.textContent = "카드 생성 중 문제가 생겼어요. 다시 시도해주세요.";
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+});
+
 /* ============ 타로 스프레드 시스템 ============ */
 const SPREADS = {
   one:   { label:"원 카드", positions:["오늘의 카드"] },
@@ -2205,21 +2325,136 @@ function getComboText(cardOh, weak, strong){
   return relMap[rel] || relMap.none;
 }
 
+let pendingSpreadAfterUnlock = null;
+
 document.getElementById("spreadGroup").querySelectorAll(".pick-btn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
-    if(btn.classList.contains("locked-spread")){
-      alert("이 스프레드는 프리미엄 인생종합 리포트(4,900원)에 포함돼요. 결제 기능은 곧 연결될 예정이에요!");
+    if(btn.classList.contains("locked-spread") && !isPremiumUnlocked){
+      pendingSpreadAfterUnlock = btn.dataset.spread;
+      startPayment();
       return;
     }
     startSpread(btn.dataset.spread);
   });
 });
+
+function unlockSpreadButtons(){
+  document.querySelectorAll("#spreadGroup .locked-spread").forEach(b=>{
+    b.classList.remove("locked-spread");
+    b.textContent = b.textContent.replace("🔒 ", "");
+  });
+}
 document.getElementById("redrawBtn").addEventListener("click", resetSpread);
 
-document.getElementById("unlockBtn").addEventListener("click", function(){
+function renderPremiumReport(){
+  if(!currentSaju) return;
+  renderStrength(currentGroupCounts);
+  renderSipsin(currentSipsinMap);
+  renderSipsinDetail(currentSaju, currentSipsinMap);
+  renderTopicFortunes(currentSipsinMap, currentGroupCounts, currentCounts);
+  renderSummary(currentSaju, currentCounts, currentGroupCounts);
+  renderSajuStats(currentSaju, currentGroupCounts, calcStrength(currentGroupCounts));
+  renderDaeunSeun(currentSaju, currentBirthY, currentBirthM, currentBirthD, currentGroupCounts);
+  renderSinsal(currentSaju);
+  renderGuiin(currentSaju);
+  renderGaeun(currentCounts);
+  renderNameOhang(currentBirthName, currentCounts);
+}
+
+function unlockPremiumReport(){
+  // 결제 검증 성공 후에만 호출되어야 해요. 이 시점에서 처음으로 프리미엄 텍스트가 DOM에 생성돼요.
+  if(!isPremiumUnlocked){
+    renderPremiumReport();
+    isPremiumUnlocked = true;
+  }
   document.getElementById("premiumBlurContent").classList.add("unlocked");
   document.getElementById("premiumOverlay").classList.add("hidden");
-});
+  unlockSpreadButtons();
+
+  if(pendingSpreadAfterUnlock){
+    const spread = pendingSpreadAfterUnlock;
+    pendingSpreadAfterUnlock = null;
+    startSpread(spread);
+  }
+}
+
+// ===== 결제 연동 (포트원 V2) =====
+// 1. https://admin.portone.io 에서 상점(store) 생성 + PG 채널(카카오페이/토스페이먼츠 등) 연결 후
+//    아래 두 값을 콘솔에서 발급받은 실제 값으로 교체하세요.
+// 2. Netlify 대시보드 > Site settings > Environment variables 에 PORTONE_API_SECRET(V2 API Secret)을 등록하세요.
+//    (netlify/functions/verify-payment.js 가 이 값으로 결제를 서버에서 재검증합니다.)
+// 3. 둘 다 설정되기 전까지는 안전한 폴백으로 미리보기 잠금 해제만 동작합니다.
+const PORTONE_STORE_ID = "store-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"; // TODO: 실제 상점 ID로 교체
+const PORTONE_CHANNEL_KEY = "channel-key-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"; // TODO: 실제 채널 키로 교체
+const PREMIUM_PRICE_KRW = 4900;
+
+async function startPayment(){
+  const btn = document.getElementById("unlockBtn");
+  const statusEl = document.getElementById("paymentStatus");
+
+  if(!currentSaju){
+    statusEl.textContent = "먼저 위에서 사주팔자를 분석해주세요.";
+    return;
+  }
+
+  if(PORTONE_STORE_ID.includes("xxxx") || PORTONE_CHANNEL_KEY.includes("xxxx")){
+    statusEl.textContent = "결제 시스템 설정 전이라 미리보기로 잠금을 해제할게요. (실 서비스 전 PORTONE_STORE_ID/CHANNEL_KEY를 채워주세요)";
+    unlockPremiumReport();
+    return;
+  }
+  if(typeof PortOne === "undefined"){
+    statusEl.textContent = "결제 모듈을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해주세요.";
+    return;
+  }
+
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "결제 진행 중...";
+  statusEl.textContent = "";
+
+  try{
+    const paymentId = `myeongsa-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    const response = await PortOne.requestPayment({
+      storeId: PORTONE_STORE_ID,
+      channelKey: PORTONE_CHANNEL_KEY,
+      paymentId,
+      orderName: "命絲 프리미엄 인생종합 리포트",
+      totalAmount: PREMIUM_PRICE_KRW,
+      currency: "CURRENCY_KRW",
+      payMethod: "CARD"
+    });
+
+    if(response && response.code !== undefined){
+      statusEl.textContent = response.message || "결제가 취소됐어요.";
+      btn.disabled = false;
+      btn.textContent = originalText;
+      return;
+    }
+
+    // 클라이언트가 "성공했다"고 알려주는 값은 위조될 수 있으므로, 서버(Netlify Function)에서 반드시 재검증합니다.
+    statusEl.textContent = "결제 확인 중...";
+    const verifyRes = await fetch("/.netlify/functions/verify-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentId: response.paymentId })
+    });
+    const verifyData = await verifyRes.json();
+
+    if(verifyData.ok){
+      unlockPremiumReport();
+      statusEl.textContent = "결제가 확인됐어요. 리포트가 열렸어요!";
+    } else {
+      statusEl.textContent = "결제 확인에 실패했어요: " + (verifyData.error || "알 수 없는 오류");
+    }
+  } catch(err){
+    console.error(err);
+    statusEl.textContent = "결제 중 문제가 생겼어요. 다시 시도해주세요.";
+  }
+  btn.disabled = false;
+  btn.textContent = originalText;
+}
+
+document.getElementById("unlockBtn").addEventListener("click", startPayment);
 
 document.getElementById("relockBtn").addEventListener("click", function(){
   document.getElementById("premiumBlurContent").classList.remove("unlocked");
