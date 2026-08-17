@@ -8,12 +8,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;900&family=Pretendard:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink: #12131f;
-  --ink-2: #1b1d2e;
+  --ink: #11132a;
+  --ink-2: #191c3a;
   --paper: #ede6d3;
   --paper-dim: #b9b19a;
   --gold: #c9a24b;
   --gold-bright: #e8c874;
+  --silver: #a9afc9;
+  --silver-bright: #dde0ef;
   --cinnabar: #b8433f;
   --jade: #4f7a6b;
   --wood: #6a8f5a;
@@ -25,22 +27,16 @@
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
-  background: radial-gradient(ellipse at top, #1c1e33 0%, var(--ink) 55%, #0a0a12 100%);
+  background: radial-gradient(ellipse at top, #1b2049 0%, var(--ink) 55%, #08091c 100%);
   color: var(--paper);
   font-family: 'Pretendard', -apple-system, sans-serif;
   min-height: 100vh;
   padding: 0 0 80px;
 }
-.stars{
-  position: fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
-  background-image:
-    radial-gradient(1px 1px at 20px 30px, var(--gold-bright), transparent),
-    radial-gradient(1px 1px at 140px 90px, var(--paper), transparent),
-    radial-gradient(1.5px 1.5px at 260px 40px, var(--gold-bright), transparent),
-    radial-gradient(1px 1px at 340px 160px, var(--paper), transparent),
-    radial-gradient(1px 1px at 70px 220px, var(--gold-bright), transparent);
-  background-repeat: repeat; background-size: 400px 300px;
+.threadfield{
+  position: fixed; inset:0; pointer-events:none; z-index:0; opacity:.4;
 }
+.threadfield path{ vector-effect: non-scaling-stroke; }
 .wrap{ position:relative; z-index:1; max-width: 880px; margin: 0 auto; padding: 56px 24px 0; }
 
 header{ text-align:center; margin-bottom: 48px; }
@@ -55,11 +51,12 @@ h1{
   background: linear-gradient(180deg, var(--gold-bright), var(--gold) 60%, #8a6b2c);
   -webkit-background-clip: text; background-clip:text; color: transparent;
 }
+.thread-flourish{ display:block; margin: -2px auto 14px; }
 .sub{ color: var(--paper-dim); font-size:15px; line-height:1.7; max-width: 520px; margin: 0 auto;}
 
 .card{
   background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01));
-  border: 1px solid rgba(201,162,75,.25);
+  border: 1px dashed rgba(201,162,75,.4);
   border-radius: 18px;
   padding: 32px;
   margin-bottom: 28px;
@@ -67,9 +64,16 @@ h1{
 }
 .card h2{
   font-family:'Noto Serif KR', serif; font-size: 20px; margin:0 0 20px;
+  padding-bottom: 12px; border-bottom: 1px dashed rgba(201,162,75,.3);
   color: var(--gold-bright); display:flex; align-items:center; gap:10px;
 }
-.card h2 .num{ font-size:12px; color: var(--cinnabar); letter-spacing:.15em; }
+.card h2 .num{
+  display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+  width:26px; height:26px; border-radius:50%;
+  border: 1px dashed var(--cinnabar);
+  font-size:11px; color: var(--cinnabar); letter-spacing:0;
+  font-family:'Noto Serif KR', serif;
+}
 
 form.grid{
   display:grid; grid-template-columns: repeat(2, 1fr); gap: 16px 20px;
@@ -384,12 +388,31 @@ body.has-float-bar{ padding-bottom: 92px; }
 <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
 </head>
 <body>
-<div class="stars"></div>
+<svg class="threadfield" viewBox="0 0 800 1600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M-40,120 C160,40 220,220 420,140 S680,60 840,180" stroke="var(--gold)" stroke-width="1.2" fill="none" opacity=".5"/>
+  <path d="M-60,420 C120,500 260,340 460,440 S740,360 860,480" stroke="var(--silver)" stroke-width="1" fill="none" opacity=".4"/>
+  <path d="M-40,760 C180,680 260,880 480,780 S720,700 860,820" stroke="var(--gold)" stroke-width="1" fill="none" opacity=".35"/>
+  <path d="M-60,1080 C140,1160 300,980 500,1080 S760,1000 860,1120" stroke="var(--silver)" stroke-width="1.2" fill="none" opacity=".45"/>
+  <path d="M-40,1380 C180,1300 260,1480 480,1400 S720,1340 860,1440" stroke="var(--gold)" stroke-width="1" fill="none" opacity=".3"/>
+</svg>
 <div class="wrap">
 
   <header>
     <div class="eyebrow">命絲 · MyeongSa</div>
     <h1>사주 × 타로</h1>
+    <svg class="thread-flourish" viewBox="0 0 220 28" width="180" height="24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M4,14 C50,2 70,26 110,14 S170,2 216,14" stroke="url(#threadGrad)" stroke-width="1.4" fill="none"/>
+      <circle cx="110" cy="14" r="2.6" fill="var(--gold-bright)"/>
+      <defs>
+        <linearGradient id="threadGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="var(--gold)" stop-opacity="0"/>
+          <stop offset=".2" stop-color="var(--gold-bright)"/>
+          <stop offset=".5" stop-color="var(--silver-bright)"/>
+          <stop offset=".8" stop-color="var(--gold-bright)"/>
+          <stop offset="1" stop-color="var(--gold)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+    </svg>
     <p class="sub">태어난 순간이 새긴 오행의 지도 위에, 오늘 뽑은 카드가 어떤 흐름을 더하는지 겹쳐 봅니다.</p>
   </header>
 
